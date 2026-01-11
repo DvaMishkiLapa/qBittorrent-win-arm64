@@ -161,7 +161,16 @@ if (STACKTRACE)
                 /PDBALTPATH:$<TARGET_PDB_FILE_NAME:qbt_app>
             )
         else()
-            target_link_options(qbt_app PUBLIC LINKER:--export-dynamic)
+            include(CMakePushCheckState)
+            include(CheckCXXSourceCompiles)
+            cmake_push_check_state(RESET)
+            set(CMAKE_REQUIRED_LINK_OPTIONS "LINKER:--export-dynamic")
+            check_cxx_source_compiles("int main() { return 0; }" QBT_LINKER_SUPPORTS_EXPORT_DYNAMIC)
+            cmake_pop_check_state()
+
+            if (QBT_LINKER_SUPPORTS_EXPORT_DYNAMIC)
+                target_link_options(qbt_app PUBLIC LINKER:--export-dynamic)
+            endif()
 
             if (CMAKE_SIZEOF_VOID_P EQUAL 4)
                 target_compile_options(qbt_app PRIVATE -fno-omit-frame-pointer)
