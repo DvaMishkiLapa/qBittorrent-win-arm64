@@ -158,7 +158,10 @@ if (STACKTRACE)
                 /PDBALTPATH:$<TARGET_PDB_FILE_NAME:qbt_app>
             )
         else()
-            target_link_options(qbt_app PUBLIC LINKER:--export-dynamic)
+            if (NOT CMAKE_LINKER MATCHES "lld")
+                # lld (e.g. clang toolchain on Windows/MSYS2) does not support --export-dynamic
+                target_link_options(qbt_app PUBLIC LINKER:--export-dynamic)
+            endif()
 
             if (CMAKE_SIZEOF_VOID_P EQUAL 4)
                 target_compile_options(qbt_app PRIVATE -fno-omit-frame-pointer)
